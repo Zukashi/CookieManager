@@ -1,0 +1,21 @@
+<h1>Hello world!</h1>
+
+<h2>Select cookie base</h2>
+
+
+    {{>base-selector}}
+
+<h2>Select your favorite addons</h2>
+
+{{#each addons}}
+        <a href="/configurator/add-addon/{{this.[0]}}">Add {{this.[0]}} for {{this.[1]}} PLN</a>
+{{/each}}
+
+
+{{#if cookie.base}}
+    {{> cookie-preview}}
+    {{>addons}}
+{{else}}
+    <p><strong>Please select base of your cookie to set its preview and price summary</strong></p>
+    {{>base-selector}}
+{{/if}}
