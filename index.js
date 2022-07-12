@@ -19,3 +19,5 @@ app.set('view engine', '.hbs');
 app.use('/', homeRouter);
 app.use('/configurator', configuratorRouter);
 app.use('/order', orderRouter);
+
+app.listen(3000, 'localhost');
