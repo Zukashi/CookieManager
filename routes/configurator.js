@@ -9,10 +9,17 @@ configuratorRouter
 
   .get('/select-base/:baseName', (req, res) => {
     const { baseName } = req.params;
+
     if (!COOKIE_BASES[baseName]) {
-      return showErrorPage(res, `There is no such base  as ${baseName}.`);
+      return showErrorPage(res, `There is no such base as ${baseName}.`);
     }
-    res.cookie('cookieBase', baseName)
+
+    res
+      .cookie('cookieBase', baseName, {
+        // Ze względu na używanie ramki (Repl)
+        sameSite: 'none',
+        secure: true,
+      })
       .render('configurator/base-selected', {
         baseName,
       });
@@ -20,18 +27,25 @@ configuratorRouter
 
   .get('/add-addon/:addonName', (req, res) => {
     const { addonName } = req.params;
+
     if (!COOKIE_ADDONS[addonName]) {
       return showErrorPage(res, `There is no such addon as ${addonName}.`);
     }
+
     const addons = getAddonsFromReq(req);
+
     if (addons.includes(addonName)) {
-      return res.render('error', {
-        description: `${addonName} is already on your cookie. you cannot add it twice`,
-      });
+      return showErrorPage(res, `${addonName} is already on your cookie. You cannot add it twice.`);
     }
+
     addons.push(addonName);
 
-    res.cookie('cookieAddons', JSON.stringify(addons))
+    res
+      .cookie('cookieAddons', JSON.stringify(addons), {
+        // Ze względu na używanie ramki (Repl)
+        sameSite: 'none',
+        secure: true,
+      })
       .render('configurator/added', {
         addonName,
       });
@@ -39,13 +53,21 @@ configuratorRouter
 
   .get('/delete-addon/:addonName', (req, res) => {
     const { addonName } = req.params;
-    const oldAddons = getAddonsFromReq(req);
-    if (!oldAddons.includes(addonName)) {
-      return showErrorPage(res, `Cannot delte somethignh that isn't already added to the cookie  ${addonName}`);
-    }
-    const addons = getAddonsFromReq(req).filter((addon) => addon !== addonName);
 
-    res.cookie('cookieAddons', JSON.stringify(addons))
+    const oldAddons = getAddonsFromReq(req);
+
+    if (!oldAddons.includes(addonName)) {
+      return showErrorPage(res, `Cannot delete something that isn't already added to the cookie. ${addonName} not found on cookie.`);
+    }
+
+    const addons = oldAddons.filter((addon) => addon !== addonName);
+
+    res
+      .cookie('cookieAddons', JSON.stringify(addons), {
+        // Ze względu na używanie ramki (Repl)
+        sameSite: 'none',
+        secure: true,
+      })
       .render('configurator/deleted', {
         addonName,
       });

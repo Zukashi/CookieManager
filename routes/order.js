@@ -1,41 +1,40 @@
 const express = require('express');
-const { getAddonsFromReq } = require('../utils/get-addons-from-req');
-const { handlebarsHelpers } = require('../utils/handlebars-helpers');
-const { COOKIE_BASES, COOKIE_ADDONS } = require('../data/cookies-data');
+const { getCookieSettings } = require('../utils/get-cookie-settings');
 
 const orderRouter = express.Router();
 
 orderRouter
+
   .get('/summary', (req, res) => {
-    const { cookieBase } = req.cookies;
-
-    const addons = getAddonsFromReq(req);
-
-    const sum = (cookieBase ? handlebarsHelpers
-      .findPrice(Object.entries(COOKIE_BASES), cookieBase) : 0) + addons.reduce((prev, curr) => prev + handlebarsHelpers.findPrice(Object.entries(COOKIE_ADDONS), curr), 0);
+    const {
+      sum, addons, base, allBases, allAddons,
+    } = getCookieSettings(req);
 
     res.render('order/summary', {
       cookie: {
-        base: cookieBase,
+        base,
         addons,
       },
-      bases: Object.entries(COOKIE_BASES),
-      addons: Object.entries(COOKIE_ADDONS),
+      allBases,
+      allAddons,
       sum,
     });
   })
 
   .get('/thanks', (req, res) => {
-    const { cookieBase } = req.cookies;
-
-    const addons = getAddonsFromReq(req);
-
-    const sum = (cookieBase ? handlebarsHelpers
-      .findPrice(Object.entries(COOKIE_BASES), cookieBase) : 0) + addons.reduce((prev, curr) => prev + handlebarsHelpers.findPrice(Object.entries(COOKIE_ADDONS), curr), 0);
+    const { sum } = getCookieSettings(req);
 
     res
-      .clearCookie('cookieBase')
-      .clearCookie('cookieAddons')
+      .clearCookie('cookieBase', {
+        // Ze względu na używanie ramki (Repl)
+        sameSite: 'none',
+        secure: true,
+      })
+      .clearCookie('cookieAddons', {
+        // Ze względu na używanie ramki (Repl)
+        sameSite: 'none',
+        secure: true,
+      })
       .render('order/thanks', {
         sum,
       });
