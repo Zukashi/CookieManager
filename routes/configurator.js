@@ -1,4 +1,5 @@
 const express = require('express');
+const { getAddonsFromReq } = require('../utils/get-addons-from-req');
 
 const configuratorRouter = express.Router();
 
@@ -9,6 +10,18 @@ configuratorRouter
     res.cookie('cookieBase', baseName)
       .render('configurator/base-selected', {
         baseName,
+      });
+  })
+
+  .get('/add-addon/:addonName', (req, res) => {
+    const { addonName } = req.params;
+
+    const addons = getAddonsFromReq(req);
+    addons.push(addonName);
+
+    res.cookie('cookieAddons', JSON.stringify(addons))
+      .render('configurator/added', {
+        addonName,
       });
   });
 
